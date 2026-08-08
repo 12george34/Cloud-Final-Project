@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutritional Insights</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0/dist/tailwind.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <header class="bg-blue-600 p-4 text-white">
+        <p class="p-4">Records processed: <span id="recordCount"></span> | Execution time: <span id="execTime"></span>s
+        </p>
+        <h1 class="text-3xl font-semibold">Nutritional Insights</h1>
+    </header>
+
+    <main class="container mx-auto p-6">
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Explore Nutritional Insights</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-4 shadow-lg rounded-lg">
+                    <h3 class="font-semibold">Bar Chart</h3>
+                    <p class="text-sm text-gray-600">Average macronutrient content by diet type.</p>
+                    <canvas id="barChart" class="w-full h-48"></canvas>
+                </div>
+
+                <div class="bg-white p-4 shadow-lg rounded-lg">
+                    <h3 class="font-semibold">Scatter Plot</h3>
+                    <p class="text-sm text-gray-600">Nutrient relationships (e.g., protein vs carbs).</p>
+                    <canvas id="scatterPlot" class="w-full h-48"></canvas>
+                </div>
+
+                <div class="bg-white p-4 shadow-lg rounded-lg">
+                    <h3 class="font-semibold">Heatmap</h3>
+                    <p class="text-sm text-gray-600">Nutrient correlations.</p>
+                    <div id="heatmap" class="w-full h-48"></div>
+                </div>
+
+                <div class="bg-white p-4 shadow-lg rounded-lg">
+                    <h3 class="font-semibold">Pie Chart</h3>
+                    <p class="text-sm text-gray-600">Recipe distribution by diet type.</p>
+                    <canvas id="pieChart" class="w-full h-48"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Filters and Data Interaction</h2>
+            <div class="flex flex-wrap gap-4">
+                <input type="text" placeholder="Search by Diet Type" class="p-2 border rounded w-full sm:w-auto">
+                <select class="p-2 border rounded w-full sm:w-auto">
+                    <option value="all">All Diet Types</option>
+                    <option value="vegan">Vegan</option>
+                    <option value="keto">Keto</option>
+                    <!-- Add more options -->
+                </select>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">API Data Interaction</h2>
+            <div class="flex flex-wrap gap-4">
+                <button class="bg-blue-600 text-white py-2 px-4 rounded">Get Nutritional Insights</button>
+                <button class="bg-green-600 text-white py-2 px-4 rounded">Get Recipes</button>
+                <button class="bg-purple-600 text-white py-2 px-4 rounded">Get Clusters</button>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">Pagination</h2>
+            <div class="flex justify-center gap-2 mt-4">
+                <button class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Previous</button>
+                <button class="px-3 py-1 bg-blue-600 text-white rounded">1</button>
+                <button class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">2</button>
+                <button class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Next</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-blue-600 p-4 text-white text-center mt-10">
+        <p>&copy; 2025 Nutritional Insights. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const functionUrl = "https://diet-analysis-function1-bafpg8gdbpcydjg9.canadacentral-01.azurewebsites.net/api/analyzefunction?code=r72ph5z4yxJg9ymAxe_HUHGTDHAxx76mxC3dw1IPjfzhAzFu205weA%3D%3D";
+
+        fetch(functionUrl)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("recordCount").textContent = data.recordCount;
+                document.getElementById("execTime").textContent = data.executionTimeSeconds;
+
+                new Chart(document.getElementById("barChart"), {
+                    type: "bar",
+                    data: {
+                        labels: data.macronutrients.map(item => item.diet),
+                        datasets: [
+                            {
+                                label: "Protein (g)",
+                                data: data.macronutrients.map(item => item.protein),
+                                backgroundColor: "rgba(59, 130, 246, 0.7)"
+                            },
+                            {
+                                label: "Carbs (g)",
+                                data: data.macronutrients.map(item => item.carbs),
+                                backgroundColor: "rgba(34, 197, 94, 0.7)"
+                            },
+                            {
+                                label: "Fat (g)",
+                                data: data.macronutrients.map(item => item.fat),
+                                backgroundColor: "rgba(249, 115, 22, 0.7)"
+                            }
+                        ]
+                    }
+                });
+
+                new Chart(document.getElementById("pieChart"), {
+                    type: "pie",
+                    data: {
+                        labels: data.dietDistribution.map(item => item.diet),
+                        datasets: [
+                            {
+                                label: "Recipe Count",
+                                data: data.dietDistribution.map(item => item.count),
+                                backgroundColor: [
+                                    "rgba(59, 130, 246, 0.7)",
+                                    "rgba(34, 197, 94, 0.7)",
+                                    "rgba(249, 115, 22, 0.7)",
+                                    "rgba(168, 85, 247, 0.7)",
+                                    "rgba(236, 72, 153, 0.7)"
+                                ]
+                            }
+                        ]
+                    }
+                });
+
+                // NEW: Scatter Plot box now shows Top 5 Protein Recipes
+                // (kept the canvas id "scatterPlot" so nothing else had to change)
+                const top5 = [...data.topProteinRecipes]
+                    .sort((a, b) => b.protein - a.protein)
+                    .slice(0, 5);
+
+                new Chart(document.getElementById("scatterPlot"), {
+                    type: "bar",
+                    data: {
+                        labels: top5.map(item => item.recipe),
+                        datasets: [
+                            {
+                                label: "Protein (g)",
+                                data: top5.map(item => item.protein),
+                                backgroundColor: "rgba(236, 72, 153, 0.7)"
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: "y"
+                    }
+                });
+
+                // NEW: Heatmap box now shows Common Cuisine per diet as a plain list
+                // (kept the div id "heatmap" so nothing else had to change)
+                const heatmapDiv = document.getElementById("heatmap");
+                data.commonCuisine.forEach(item => {
+                    const p = document.createElement("p");
+                    p.textContent = item.diet + ": " + item.cuisine;
+                    heatmapDiv.appendChild(p);
+                });
+            });
+    </script>
+
+</body>
+
+</html>
