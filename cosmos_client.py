@@ -34,3 +34,20 @@ def get_container():
     )
 
     return container
+
+def get_users_container():
+    global _client
+
+    if _client is None:
+        _client = CosmosClient(
+            url=os.environ["COSMOS_ENDPOINT"],
+            credential=os.environ["COSMOS_KEY"]
+        )
+
+    database = _client.get_database_client(
+        os.environ["COSMOS_DATABASE"]
+    )
+
+    container = database.get_container_client("Users")
+
+    return container
