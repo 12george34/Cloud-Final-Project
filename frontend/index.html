@@ -1,176 +1,1059 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nutritional Insights</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0/dist/tailwind.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-900">
 
     <header class="bg-blue-600 p-4 text-white">
-        <p class="p-4">Records processed: <span id="recordCount"></span> | Execution time: <span id="execTime"></span>s
+        <p class="p-4">
+            Records processed:
+            <span id="recordCount">Loading...</span>
+            |
+            Execution time:
+            <span id="execTime">Loading...</span>s
         </p>
-        <h1 class="text-3xl font-semibold">Nutritional Insights</h1>
+
+        <h1 class="text-3xl font-semibold">
+            Nutritional Insights
+        </h1>
     </header>
 
     <main class="container mx-auto p-6">
+
+        <!-- Charts -->
         <section class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Explore Nutritional Insights</h2>
+            <h2 class="text-2xl font-semibold mb-4">
+                Explore Nutritional Insights
+            </h2>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <!-- Macronutrient Bar Chart -->
                 <div class="bg-white p-4 shadow-lg rounded-lg">
-                    <h3 class="font-semibold">Bar Chart</h3>
-                    <p class="text-sm text-gray-600">Average macronutrient content by diet type.</p>
+                    <h3 class="font-semibold">
+                        Macronutrients by Diet
+                    </h3>
+
+                    <p class="text-sm text-gray-600 mb-4">
+                        Average macronutrient content by diet type.
+                    </p>
+
                     <canvas id="barChart" class="w-full h-48"></canvas>
                 </div>
 
+                <!-- Top Protein Recipes -->
                 <div class="bg-white p-4 shadow-lg rounded-lg">
-                    <h3 class="font-semibold">Scatter Plot</h3>
-                    <p class="text-sm text-gray-600">Nutrient relationships (e.g., protein vs carbs).</p>
+                    <h3 class="font-semibold">
+                        Top Protein Recipes
+                    </h3>
+
+                    <p class="text-sm text-gray-600 mb-4">
+                        Recipes with the highest protein content.
+                    </p>
+
                     <canvas id="scatterPlot" class="w-full h-48"></canvas>
                 </div>
 
+                <!-- Common Cuisine -->
                 <div class="bg-white p-4 shadow-lg rounded-lg">
-                    <h3 class="font-semibold">Heatmap</h3>
-                    <p class="text-sm text-gray-600">Nutrient correlations.</p>
-                    <div id="heatmap" class="w-full h-48"></div>
+                    <h3 class="font-semibold">
+                        Common Cuisine
+                    </h3>
+
+                    <p class="text-sm text-gray-600 mb-4">
+                        Most common cuisine for each diet type.
+                    </p>
+
+                    <div id="heatmap" class="w-full"></div>
                 </div>
 
+                <!-- Diet Distribution -->
                 <div class="bg-white p-4 shadow-lg rounded-lg">
-                    <h3 class="font-semibold">Pie Chart</h3>
-                    <p class="text-sm text-gray-600">Recipe distribution by diet type.</p>
+                    <h3 class="font-semibold">
+                        Diet Distribution
+                    </h3>
+
+                    <p class="text-sm text-gray-600 mb-4">
+                        Recipe distribution by diet type.
+                    </p>
+
                     <canvas id="pieChart" class="w-full h-48"></canvas>
                 </div>
+
             </div>
         </section>
 
+
+        <!-- Summary -->
         <section class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Filters and Data Interaction</h2>
+
+            <h2 class="text-2xl font-semibold mb-4">
+                Analysis Summary
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="bg-white p-5 shadow-lg rounded-lg">
+                    <h3 class="text-sm text-gray-500">
+                        Highest Protein Diet
+                    </h3>
+
+                    <p id="highestProteinDiet"
+                       class="text-2xl font-bold capitalize">
+                        Loading...
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 shadow-lg rounded-lg">
+                    <h3 class="text-sm text-gray-500">
+                        Total Recipes
+                    </h3>
+
+                    <p id="summaryRecordCount"
+                       class="text-2xl font-bold">
+                        Loading...
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 shadow-lg rounded-lg">
+                    <h3 class="text-sm text-gray-500">
+                        Analysis Updated
+                    </h3>
+
+                    <p id="updatedAt"
+                       class="text-lg font-semibold">
+                        Loading...
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Filters -->
+        <section class="mb-8">
+
+            <h2 class="text-2xl font-semibold mb-4">
+                Filters and Data Interaction
+            </h2>
+
             <div class="flex flex-wrap gap-4">
-                <input type="text" placeholder="Search by Diet Type" class="p-2 border rounded w-full sm:w-auto">
-                <select class="p-2 border rounded w-full sm:w-auto">
-                    <option value="all">All Diet Types</option>
-                    <option value="vegan">Vegan</option>
-                    <option value="keto">Keto</option>
-                    <!-- Add more options -->
+
+                <input
+                    id="dietSearch"
+                    type="text"
+                    placeholder="Search by Diet Type"
+                    class="p-2 border rounded w-full sm:w-auto"
+                >
+
+                <select
+                    id="dietFilter"
+                    class="p-2 border rounded w-full sm:w-auto"
+                >
+                    <option value="all">
+                        All Diet Types
+                    </option>
+
+                    <option value="vegan">
+                        Vegan
+                    </option>
+
+                    <option value="keto">
+                        Keto
+                    </option>
+
+                    <option value="paleo">
+                        Paleo
+                    </option>
+
+                    <option value="dash">
+                        DASH
+                    </option>
+
+                    <option value="mediterranean">
+                        Mediterranean
+                    </option>
                 </select>
+
             </div>
+
         </section>
 
+
+        <!-- API Data Interaction -->
         <section class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">API Data Interaction</h2>
+
+            <h2 class="text-2xl font-semibold mb-4">
+                API Data Interaction
+            </h2>
+
             <div class="flex flex-wrap gap-4">
-                <button class="bg-blue-600 text-white py-2 px-4 rounded">Get Nutritional Insights</button>
-                <button class="bg-green-600 text-white py-2 px-4 rounded">Get Recipes</button>
-                <button class="bg-purple-600 text-white py-2 px-4 rounded">Get Clusters</button>
+
+                <button
+                    id="insightsButton"
+                    class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                >
+                    Get Nutritional Insights
+                </button>
+
+                <button
+                    id="recipesButton"
+                    class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+                >
+                    Get Recipes
+                </button>
+
+                <button
+                    id="clustersButton"
+                    class="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
+                >
+                    Get Clusters
+                </button>
+
             </div>
+
+            <div
+                id="apiMessage"
+                class="mt-4 text-sm text-gray-600"
+            ></div>
+
         </section>
 
-        <section>
-            <h2 class="text-2xl font-semibold mb-4">Pagination</h2>
-            <div class="flex justify-center gap-2 mt-4">
-                <button class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Previous</button>
-                <button class="px-3 py-1 bg-blue-600 text-white rounded">1</button>
-                <button class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">2</button>
-                <button class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Next</button>
+
+        <!-- Top Recipes Table -->
+        <section class="mb-8">
+
+            <h2 class="text-2xl font-semibold mb-4">
+                Top Protein Recipes
+            </h2>
+
+            <div class="bg-white shadow-lg rounded-lg overflow-x-auto">
+
+                <table class="min-w-full">
+
+                    <thead class="bg-gray-200">
+
+                        <tr>
+                            <th class="text-left p-3">
+                                Diet
+                            </th>
+
+                            <th class="text-left p-3">
+                                Recipe
+                            </th>
+
+                            <th class="text-left p-3">
+                                Protein (g)
+                            </th>
+
+                            <th class="text-left p-3">
+                                Cuisine
+                            </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="recipeTable">
+
+                    </tbody>
+
+                </table>
+
             </div>
+
         </section>
+
+
+        <!-- Pagination -->
+        <section>
+
+            <h2 class="text-2xl font-semibold mb-4">
+                Pagination
+            </h2>
+
+            <div class="flex justify-center gap-2 mt-4">
+
+                <button
+                    id="previousPage"
+                    class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                    Previous
+                </button>
+
+                <span
+                    id="pageNumber"
+                    class="px-3 py-1 bg-blue-600 text-white rounded"
+                >
+                    1
+                </span>
+
+                <button
+                    id="nextPage"
+                    class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                    Next
+                </button>
+
+            </div>
+
+        </section>
+
     </main>
 
+
     <footer class="bg-blue-600 p-4 text-white text-center mt-10">
-        <p>&copy; 2025 Nutritional Insights. All Rights Reserved.</p>
+
+        <p>
+            &copy; 2026 Nutritional Insights.
+            All Rights Reserved.
+        </p>
+
     </footer>
 
+
     <script>
-        const functionUrl = "https://diet-analysis-function1-bafpg8gdbpcydjg9.canadacentral-01.azurewebsites.net/api/analyzefunction?code=r72ph5z4yxJg9ymAxe_HUHGTDHAxx76mxC3dw1IPjfzhAzFu205weA%3D%3D";
 
-        fetch(functionUrl)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("recordCount").textContent = data.recordCount;
-                document.getElementById("execTime").textContent = data.executionTimeSeconds;
+        /*
+         * Azure Function API
+         *
+         * This is the new deployed Function App:
+         * diet-analysis-george-func
+         */
+        const functionUrl =
+            "https://diet-analysis-george-func.azurewebsites.net/api/analyzefunction";
 
-                new Chart(document.getElementById("barChart"), {
-                    type: "bar",
-                    data: {
-                        labels: data.macronutrients.map(item => item.diet),
-                        datasets: [
-                            {
-                                label: "Protein (g)",
-                                data: data.macronutrients.map(item => item.protein),
-                                backgroundColor: "rgba(59, 130, 246, 0.7)"
-                            },
-                            {
-                                label: "Carbs (g)",
-                                data: data.macronutrients.map(item => item.carbs),
-                                backgroundColor: "rgba(34, 197, 94, 0.7)"
-                            },
-                            {
-                                label: "Fat (g)",
-                                data: data.macronutrients.map(item => item.fat),
-                                backgroundColor: "rgba(249, 115, 22, 0.7)"
-                            }
-                        ]
+
+        let analysisData = null;
+
+        let currentPage = 1;
+
+        const recipesPerPage = 5;
+
+
+        /*
+         * Load analysis data
+         */
+        async function loadAnalysisData() {
+
+            try {
+
+                const response = await fetch(functionUrl);
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP error: ${response.status}`
+                    );
+                }
+
+                const data = await response.json();
+
+                analysisData = data;
+
+                updateSummary(data);
+
+                createBarChart(data);
+
+                createPieChart(data);
+
+                createProteinChart(data);
+
+                displayCuisine(data);
+
+                displayRecipes(data);
+
+                setupFilters(data);
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Error loading analysis data:",
+                    error
+                );
+
+                document.getElementById(
+                    "apiMessage"
+                ).textContent =
+                    "Unable to load analysis data from Azure.";
+
+            }
+
+        }
+
+
+        /*
+         * Update summary information
+         */
+        function updateSummary(data) {
+
+            document.getElementById(
+                "recordCount"
+            ).textContent = data.recordCount;
+
+            document.getElementById(
+                "summaryRecordCount"
+            ).textContent = data.recordCount;
+
+            document.getElementById(
+                "execTime"
+            ).textContent =
+                Number(data.executionTimeSeconds).toFixed(3);
+
+            document.getElementById(
+                "highestProteinDiet"
+            ).textContent =
+                data.highestProteinDiet;
+
+            if (data.updatedAt) {
+
+                const date =
+                    new Date(data.updatedAt);
+
+                document.getElementById(
+                    "updatedAt"
+                ).textContent =
+                    date.toLocaleString();
+
+            }
+
+        }
+
+
+        /*
+         * Macronutrient bar chart
+         */
+        function createBarChart(data) {
+
+            const canvas =
+                document.getElementById("barChart");
+
+            new Chart(canvas, {
+
+                type: "bar",
+
+                data: {
+
+                    labels:
+                        data.macronutrients.map(
+                            item => item.diet
+                        ),
+
+                    datasets: [
+
+                        {
+                            label: "Protein (g)",
+
+                            data:
+                                data.macronutrients.map(
+                                    item => item.protein
+                                ),
+
+                            backgroundColor:
+                                "rgba(59, 130, 246, 0.7)"
+                        },
+
+                        {
+                            label: "Carbs (g)",
+
+                            data:
+                                data.macronutrients.map(
+                                    item => item.carbs
+                                ),
+
+                            backgroundColor:
+                                "rgba(34, 197, 94, 0.7)"
+                        },
+
+                        {
+                            label: "Fat (g)",
+
+                            data:
+                                data.macronutrients.map(
+                                    item => item.fat
+                                ),
+
+                            backgroundColor:
+                                "rgba(249, 115, 22, 0.7)"
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
+
                     }
-                });
 
-                new Chart(document.getElementById("pieChart"), {
-                    type: "pie",
-                    data: {
-                        labels: data.dietDistribution.map(item => item.diet),
-                        datasets: [
-                            {
-                                label: "Recipe Count",
-                                data: data.dietDistribution.map(item => item.count),
-                                backgroundColor: [
-                                    "rgba(59, 130, 246, 0.7)",
-                                    "rgba(34, 197, 94, 0.7)",
-                                    "rgba(249, 115, 22, 0.7)",
-                                    "rgba(168, 85, 247, 0.7)",
-                                    "rgba(236, 72, 153, 0.7)"
-                                ]
-                            }
-                        ]
-                    }
-                });
+                }
 
-                // NEW: Scatter Plot box now shows Top 5 Protein Recipes
-                // (kept the canvas id "scatterPlot" so nothing else had to change)
-                const top5 = [...data.topProteinRecipes]
-                    .sort((a, b) => b.protein - a.protein)
-                    .slice(0, 5);
-
-                new Chart(document.getElementById("scatterPlot"), {
-                    type: "bar",
-                    data: {
-                        labels: top5.map(item => item.recipe),
-                        datasets: [
-                            {
-                                label: "Protein (g)",
-                                data: top5.map(item => item.protein),
-                                backgroundColor: "rgba(236, 72, 153, 0.7)"
-                            }
-                        ]
-                    },
-                    options: {
-                        indexAxis: "y"
-                    }
-                });
-
-                // NEW: Heatmap box now shows Common Cuisine per diet as a plain list
-                // (kept the div id "heatmap" so nothing else had to change)
-                const heatmapDiv = document.getElementById("heatmap");
-                data.commonCuisine.forEach(item => {
-                    const p = document.createElement("p");
-                    p.textContent = item.diet + ": " + item.cuisine;
-                    heatmapDiv.appendChild(p);
-                });
             });
+
+        }
+
+
+        /*
+         * Diet distribution pie chart
+         */
+        function createPieChart(data) {
+
+            const canvas =
+                document.getElementById("pieChart");
+
+            new Chart(canvas, {
+
+                type: "pie",
+
+                data: {
+
+                    labels:
+                        data.dietDistribution.map(
+                            item => item.diet
+                        ),
+
+                    datasets: [
+
+                        {
+
+                            label: "Recipe Count",
+
+                            data:
+                                data.dietDistribution.map(
+                                    item => item.count
+                                ),
+
+                            backgroundColor: [
+
+                                "rgba(59, 130, 246, 0.7)",
+
+                                "rgba(34, 197, 94, 0.7)",
+
+                                "rgba(249, 115, 22, 0.7)",
+
+                                "rgba(168, 85, 247, 0.7)",
+
+                                "rgba(236, 72, 153, 0.7)"
+
+                            ]
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false
+
+                }
+
+            });
+
+        }
+
+
+        /*
+         * Top protein recipes chart
+         */
+        function createProteinChart(data) {
+
+            const top5 =
+                [...data.topProteinRecipes]
+
+                .sort(
+                    (a, b) =>
+                        b.protein - a.protein
+                )
+
+                .slice(0, 5);
+
+
+            const canvas =
+                document.getElementById(
+                    "scatterPlot"
+                );
+
+
+            new Chart(canvas, {
+
+                type: "bar",
+
+                data: {
+
+                    labels:
+                        top5.map(
+                            item => item.recipe
+                        ),
+
+                    datasets: [
+
+                        {
+
+                            label: "Protein (g)",
+
+                            data:
+                                top5.map(
+                                    item => item.protein
+                                ),
+
+                            backgroundColor:
+                                "rgba(236, 72, 153, 0.7)"
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    indexAxis: "y",
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+
+        /*
+         * Display common cuisine information
+         */
+        function displayCuisine(data) {
+
+            const heatmapDiv =
+                document.getElementById(
+                    "heatmap"
+                );
+
+            heatmapDiv.innerHTML = "";
+
+
+            data.commonCuisine.forEach(
+                item => {
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+                    div.className =
+                        "flex justify-between border-b py-2";
+
+
+                    const diet =
+                        document.createElement(
+                            "span"
+                        );
+
+                    diet.className =
+                        "font-semibold capitalize";
+
+                    diet.textContent =
+                        item.diet;
+
+
+                    const cuisine =
+                        document.createElement(
+                            "span"
+                        );
+
+                    cuisine.className =
+                        "capitalize text-gray-600";
+
+                    cuisine.textContent =
+                        item.cuisine;
+
+
+                    div.appendChild(diet);
+
+                    div.appendChild(cuisine);
+
+                    heatmapDiv.appendChild(div);
+
+                }
+            );
+
+        }
+
+
+        /*
+         * Display recipe table
+         */
+        function displayRecipes(data) {
+
+            const table =
+                document.getElementById(
+                    "recipeTable"
+                );
+
+            table.innerHTML = "";
+
+
+            const start =
+                (currentPage - 1) *
+                recipesPerPage;
+
+
+            const end =
+                start + recipesPerPage;
+
+
+            const recipes =
+                data.topProteinRecipes
+                    .slice(start, end);
+
+
+            recipes.forEach(
+                recipe => {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+                    row.className =
+                        "border-b hover:bg-gray-50";
+
+
+                    row.innerHTML = `
+
+                        <td class="p-3 capitalize">
+                            ${escapeHtml(recipe.diet)}
+                        </td>
+
+                        <td class="p-3">
+                            ${escapeHtml(recipe.recipe)}
+                        </td>
+
+                        <td class="p-3">
+                            ${Number(recipe.protein).toFixed(2)}
+                        </td>
+
+                        <td class="p-3 capitalize">
+                            ${escapeHtml(recipe.cuisine)}
+                        </td>
+
+                    `;
+
+
+                    table.appendChild(row);
+
+                }
+            );
+
+
+            updatePagination(data);
+
+        }
+
+
+        /*
+         * Prevent HTML from being injected
+         * into the recipe table.
+         */
+        function escapeHtml(value) {
+
+            return String(value)
+
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /*
+         * Pagination
+         */
+        function updatePagination(data) {
+
+            const totalPages =
+                Math.ceil(
+                    data.topProteinRecipes.length /
+                    recipesPerPage
+                );
+
+
+            document.getElementById(
+                "pageNumber"
+            ).textContent =
+                `${currentPage} / ${totalPages}`;
+
+
+            document.getElementById(
+                "previousPage"
+            ).disabled =
+                currentPage === 1;
+
+
+            document.getElementById(
+                "nextPage"
+            ).disabled =
+                currentPage === totalPages;
+
+        }
+
+
+        document.getElementById(
+            "previousPage"
+        ).addEventListener(
+            "click",
+            () => {
+
+                if (currentPage > 1) {
+
+                    currentPage--;
+
+                    displayRecipes(
+                        analysisData
+                    );
+
+                }
+
+            }
+        );
+
+
+        document.getElementById(
+            "nextPage"
+        ).addEventListener(
+            "click",
+            () => {
+
+                const totalPages =
+                    Math.ceil(
+                        analysisData.topProteinRecipes.length /
+                        recipesPerPage
+                    );
+
+
+                if (currentPage < totalPages) {
+
+                    currentPage++;
+
+                    displayRecipes(
+                        analysisData
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+         * Filters
+         */
+        function setupFilters(data) {
+
+            const searchInput =
+                document.getElementById(
+                    "dietSearch"
+                );
+
+            const filter =
+                document.getElementById(
+                    "dietFilter"
+                );
+
+
+            function applyFilters() {
+
+                const search =
+                    searchInput.value
+                        .toLowerCase()
+                        .trim();
+
+
+                const selectedDiet =
+                    filter.value;
+
+
+                let filtered =
+                    data.topProteinRecipes.filter(
+                        recipe => {
+
+                            const matchesSearch =
+                                recipe.diet
+                                    .toLowerCase()
+                                    .includes(search);
+
+
+                            const matchesDiet =
+                                selectedDiet === "all" ||
+                                recipe.diet.toLowerCase() ===
+                                selectedDiet;
+
+
+                            return (
+                                matchesSearch &&
+                                matchesDiet
+                            );
+
+                        }
+                    );
+
+
+                const filteredData = {
+
+                    ...data,
+
+                    topProteinRecipes:
+                        filtered
+
+                };
+
+
+                currentPage = 1;
+
+                displayRecipes(
+                    filteredData
+                );
+
+            }
+
+
+            searchInput.addEventListener(
+                "input",
+                applyFilters
+            );
+
+
+            filter.addEventListener(
+                "change",
+                applyFilters
+            );
+
+        }
+
+
+        /*
+         * API buttons
+         */
+        document.getElementById(
+            "insightsButton"
+        ).addEventListener(
+            "click",
+            () => {
+
+                loadAnalysisData();
+
+                document.getElementById(
+                    "apiMessage"
+                ).textContent =
+                    "Nutritional insights refreshed from Azure.";
+
+            }
+        );
+
+
+        document.getElementById(
+            "recipesButton"
+        ).addEventListener(
+            "click",
+            () => {
+
+                if (analysisData) {
+
+                    document.getElementById(
+                        "recipeTable"
+                    ).scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+                }
+
+                document.getElementById(
+                    "apiMessage"
+                ).textContent =
+                    "Showing the top protein recipes.";
+
+            }
+        );
+
+
+        document.getElementById(
+            "clustersButton"
+        ).addEventListener(
+            "click",
+            () => {
+
+                document.getElementById(
+                    "apiMessage"
+                ).textContent =
+                    "Clustering data is not currently provided by the AnalyzeFunction.";
+
+            }
+        );
+
+
+        /*
+         * Load the application
+         */
+        loadAnalysisData();
+
     </script>
 
 </body>
-
 </html>
